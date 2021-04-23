@@ -4,7 +4,7 @@ from .serializers import BotSerializer
 from rest_framework.decorators import api_view
 import logging
 
-logger = logging.getLogger('root')
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
