@@ -26,18 +26,15 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/home/maryia/PycharmProjects/tg_bot_project/mainapp.log',
+        'console': {
+            'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
     },
     'loggers': {
-        'mailings': {
-            'handlers': ['file'],
+        'root': {
+            'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
         },
     },
 }
