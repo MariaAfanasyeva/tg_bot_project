@@ -17,7 +17,7 @@ jobs:
         include:
           - db: postgres
             db_port: 5432
-
+            
     services:
       postgres:
         image: postgres
@@ -31,7 +31,6 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
@@ -45,3 +44,4 @@ jobs:
     - name: Test with pytest
       run: |
         py.test
+
