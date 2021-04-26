@@ -9,7 +9,28 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    strategy:
+      max-parallel: 4
+      matrix:
+        db: [postgres]
+        python-version: [ 3.6, 3.7, 3.8 ]
+        include:
+          - db: postgres
+            db_port: 5432
+            
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
@@ -22,4 +43,5 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        python manage.py test
+        py.test
+
