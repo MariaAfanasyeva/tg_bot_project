@@ -21,8 +21,6 @@ psycopg2==2.8.6
 py==1.10.0
 pyparsing==2.4.7
 pytest==6.2.3
-pytest-assert-utils==0.2.2
-pytest-common-subject==1.0.5
 pytest-django==4.2.0
 pytest-drf==1.1.2
 pytest-fixture-order==0.1.3
