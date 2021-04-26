@@ -3,24 +3,25 @@ from ..models import Bot
 from .serializers import BotSerializer
 from rest_framework.decorators import api_view
 import logging
+from rest_framework import generics
 
 logger = logging.getLogger(__name__)
 
 
-@api_view(['GET'])
-def bots_list(request):
-    bots = Bot.objects.all()
-    serializer = BotSerializer(bots, many=True)
-    logger.info('User viewed all bots')
-    return Response(serializer.data)
+class GetAllBotsList(generics.ListAPIView):
+    queryset = Bot.objects.all()
+    serializer_class = BotSerializer
 
 
-@api_view(['GET'])
-def bot_detail(request, pk):
-    bot = Bot.objects.get(id=pk)
-    serializer = BotSerializer(bot, many=False)
-    logger.info('User viewed bot with id=%s', pk)
-    return Response(serializer.data)
+class GetBotDetail(generics.RetrieveAPIView):
+    queryset = Bot.objects.all()
+    serializer_class = BotSerializer
+# @api_view(['GET'])
+# def bot_detail(request, pk):
+#     bot = Bot.objects.get(id=pk)
+#     serializer = BotSerializer(bot, many=False)
+#     logger.info('User viewed bot with id=%s', pk)
+#     return Response(serializer.data)
 
 
 @api_view(['POST'])
