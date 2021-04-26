@@ -44,6 +44,8 @@ jobs:
         pip install -r requirements.txt
     - name: Run Migrations
       run: python manage.py migrate
+    - name: add settings
+      run: export DJANGO_SETTINGS_MODULE=tg_bot_project.settings
     - name: Test with pytest
       run: |
         py.test
