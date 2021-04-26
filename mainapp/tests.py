@@ -2,12 +2,9 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-import logging
 from .models import Bot
 from model_bakery import baker
 import json
-
-logger = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.django_db
 
