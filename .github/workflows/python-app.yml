@@ -52,5 +52,6 @@ jobs:
       env:
         DJANGO_SETTINGS_MODULE: tg_bot_project.settings
       run: |
+        import django django.setup()
         py.test
 
