@@ -53,5 +53,5 @@ jobs:
         DJANGO_SETTINGS_MODULE: tg_bot_project.settings
         python_files: tests.py test_*.py *_tests.py
       run: |
-        py.test
+        python manage.py test
 
