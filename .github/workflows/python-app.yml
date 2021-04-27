@@ -51,6 +51,7 @@ jobs:
     - name: Test with pytest
       env:
         DJANGO_SETTINGS_MODULE: tg_bot_project.settings
+        SECRET_KEY: django-insecure--g9_bycl488)-o%tmmw=#@k7!8^-x!y6@nt18v_62)0-46$sa8
       run: |
         py.test
 
