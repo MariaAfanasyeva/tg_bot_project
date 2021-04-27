@@ -47,7 +47,7 @@ class TestBotsEndpoints(APITestCase):
         }
 
         response = self.client.post(endpoint, expected_json, format='json')
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_201_CREATED
         assert response.data == expected_json
 
     def test_delete(self):
@@ -56,7 +56,7 @@ class TestBotsEndpoints(APITestCase):
 
         response = self.client.delete(url)
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_204_NO_CONTENT
         assert Bot.objects.all().count() == 0
 
     def test_update(self):
@@ -72,7 +72,7 @@ class TestBotsEndpoints(APITestCase):
 
         url = reverse('update', kwargs={'pk': old_bot.id})
 
-        response = self.client.post(
+        response = self.client.put(
             url,
             bot_dict,
             format='json'
