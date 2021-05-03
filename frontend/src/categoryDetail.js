@@ -21,9 +21,14 @@ class categoryDetail extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.match.params.id !== this.props.match.params.id) {
-            this.setState({
-                bots: this.state.bots
-            });
+            const id = this.props.match.params.id;
+            fetch(`http://127.0.0.1:8000/api/category/${id}`).then(res => res.json()).then(
+            (result) => {
+                this.setState({
+                    bots: result.bots
+                    });
+                }
+            );
         }
         console.log('Updated')
         // console.log(prevProps, prevState);
