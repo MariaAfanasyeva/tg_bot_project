@@ -8,16 +8,33 @@ class BotsList extends Component {
             isLoaded: false,
             items: [],
             isSelected: false,
+            selectedItems: []
         };
 
         this.handleClick = this.handleClick.bind(this);
     }
-    handleClick(event) {
+    handleClick(item, event) {
         event.preventDefault();
-        this.setState(state => ({
-            isSelected: !this.state.isSelected
-        }));
+        if (this.state.selectedItems.includes(item.id)) {
+            const index = this.state.selectedItems.indexOf(item.id);
+            delete this.state.selectedItems[index];
+            this.setState(state => {
+                return {
+                    isSelected: !this.state.isSelected,
+                    selectedItems: this.state.selectedItems,
+                }
+            });
+        } else {
+            this.setState(state => {
+                return {
+                    isSelected: !this.state.isSelected,
+                    selectedItems: [this.state.selectedItems, item.id],
+                }
+            });
+        }
     }
+
+
 
 
     componentDidMount() {
@@ -37,28 +54,32 @@ class BotsList extends Component {
         )
     }
 
+
     render() {
-        const {error, isLoaded, items, isSelected} = this.state;
+        const {error, isLoaded, items, selectedItems} = this.state;
         if (error) {
             return <p>Error {error.message}</p>
         } else if (!isLoaded) {
             return <p>Loading...</p>
-        } else if (!isSelected) {
+        } else if (!selectedItems) {
             return (
                 <ul>
-                    {items.map(item => (
-                        <li key={item.name}>
-                            <a onClick={this.handleClick}>{item.name}</a>
+                    {items.map(item =>
+                        <li key={item.id}>
+                            <a id={item.id} onClick={(event) => this.handleClick(item, event)}>{item.name}</a>
                         </li>
-                    ))}
+                    )}
                 </ul>
             );
         } else {
             return (
                 <ul>
-                    {items.map(item => (
-                        <li key={item.name}>
-                            <a onClick={this.handleClick}>{item.name}</a> {item.description}
+                    {items.map((item) => ( (selectedItems.includes(item.id)) ?
+                        <li id={item.name}>
+                            <a id={item.id} onClick={(event) => this.handleClick(item, event)}>{item.name}</a>
+                            <p>{item.description}</p>
+                        </li> : <li id={item.name}>
+                            <a id={item.id} onClick={(event) => this.handleClick(item, event)}>{item.name}</a>
                         </li>
                     ))}
                 </ul>
