@@ -1,4 +1,4 @@
-from ..models import Bot, Category
+from ..models import Bot
 from .serializers import BotSerializer
 import logging
 from rest_framework import generics
@@ -29,14 +29,3 @@ class UpdateBot(generics.UpdateAPIView):
 class DeleteBot(generics.DestroyAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
-
-
-
-class GetAllCategoriesList(generics.ListAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-
-class GetCategoryDetail(generics.RetrieveAPIView):
-    queryset = Category.objects.all()
-    serializer_class = BotCategoryDetailSerializer
