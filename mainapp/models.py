@@ -1,6 +1,13 @@
 from django.db import models
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, verbose_name='category_name')
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Bot(models.Model):
     name = models.CharField(max_length=100, verbose_name='name')
     description = models.CharField(max_length=1000, verbose_name='description')
