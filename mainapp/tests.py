@@ -13,12 +13,12 @@ class TestBotsEndpoints(APITestCase):
 
     def test_get_list(self):
         endpoint = reverse('bots')
-        baker.make(Bot, _quantity=3)
+        baker.make(Bot, _quantity=4)
         response = self.client.get(
             endpoint
         )
         assert response.status_code == 200
-        assert len(json.loads(response.content)) == 3
+        assert len(json.loads(response.content)) == 4
 
     def test_get_one_bot(self):
         bot = baker.make(Bot)
@@ -29,6 +29,7 @@ class TestBotsEndpoints(APITestCase):
             'link': bot.link,
             'author': bot.author,
             'id': bot.id,
+            'category': None
         }
 
         endpoint = reverse('detail', kwargs={'pk': bot.id})
@@ -43,7 +44,8 @@ class TestBotsEndpoints(APITestCase):
             'description': 'Adorable bot',
             'link': 'https//my_bot',
             'author': 'Nobody',
-            'id': 1
+            'id': 1,
+            'category': None
         }
 
         response = self.client.post(endpoint, expected_json, format='json')
@@ -68,6 +70,7 @@ class TestBotsEndpoints(APITestCase):
             'description': new_bot.description,
             'author': new_bot.author,
             'id': old_bot.id,
+            'category': None
         }
 
         url = reverse('update', kwargs={'pk': old_bot.id})
