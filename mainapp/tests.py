@@ -5,6 +5,9 @@ from rest_framework.test import APITestCase
 from .models import Bot
 from model_bakery import baker
 import json
+from io import StringIO
+from django.core.management import call_command
+from django.test import TestCase
 
 pytestmark = pytest.mark.django_db
 
@@ -29,6 +32,7 @@ class TestBotsEndpoints(APITestCase):
             'link': bot.link,
             'author': bot.author,
             'id': bot.id,
+            'category': None
         }
 
         endpoint = reverse('detail', kwargs={'pk': bot.id})
@@ -43,7 +47,8 @@ class TestBotsEndpoints(APITestCase):
             'description': 'Adorable bot',
             'link': 'https//my_bot',
             'author': 'Nobody',
-            'id': 1
+            'id': 1,
+            'category': None
         }
 
         response = self.client.post(endpoint, expected_json, format='json')
@@ -68,6 +73,7 @@ class TestBotsEndpoints(APITestCase):
             'description': new_bot.description,
             'author': new_bot.author,
             'id': old_bot.id,
+            'category': None
         }
 
         url = reverse('update', kwargs={'pk': old_bot.id})
@@ -80,3 +86,20 @@ class TestBotsEndpoints(APITestCase):
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == bot_dict
+
+
+class CreateBotTest(TestCase):
+    def call_command(self, *args, **kwargs):
+        out = StringIO()
+        call_command(
+            'create_bot',
+            *args,
+            stdout=out,
+            stderr=StringIO(),
+            **kwargs,
+        )
+        return out.getvalue()
+
+    def test(self):
+        out = self.call_command(total=1)
+        self.assertEqual(out, 'Successfully created bot')
