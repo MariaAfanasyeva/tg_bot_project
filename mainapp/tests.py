@@ -1,3 +1,5 @@
+from optparse import make_option
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -89,17 +91,9 @@ class TestBotsEndpoints(APITestCase):
 
 
 class CreateBotTest(TestCase):
-    def call_command(self, *args, **kwargs):
-        out = StringIO()
-        call_command(
-            'create_bot',
-            *args,
-            stdout=out,
-            stderr=StringIO(),
-            **kwargs,
-        )
-        return out.getvalue()
 
-    def test(self):
-        out = self.call_command(total=1)
-        self.assertEqual(out, 'Successfully created bot')
+    def test_create_bot(self):
+        out = StringIO()
+        make_option('--total', dest='total', type=int, help='Help description...')
+        call_command('create_bot', total=2, stdout=out)
+        print(out)

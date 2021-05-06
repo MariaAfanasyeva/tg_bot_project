@@ -7,13 +7,11 @@ class Command(BaseCommand):
     help = 'Create random bots'
 
     def add_arguments(self, parser):
-        parser.add_argument('total', type=int, action='store', default=1, nargs='+',
-                            help='Indicates the number of bots to be created')
+        parser.add_argument('-t', '--total', type=int, default=1, help='Indicates the number of bots to be created')
 
     def handle(self, *args, **options):
         total = options['total']
         for i in range(total):
-            bot = baker.make(Bot)
+            bot = baker.prepare(Bot)
             bot.save()
-
             self.stdout.write(self.style.SUCCESS('Successfully created bot'))
