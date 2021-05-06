@@ -1,3 +1,5 @@
+from optparse import make_option
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -5,6 +7,9 @@ from rest_framework.test import APITestCase
 from .models import Bot
 from model_bakery import baker
 import json
+from io import StringIO
+from django.core.management import call_command
+from django.test import TestCase
 
 pytestmark = pytest.mark.django_db
 
@@ -29,6 +34,7 @@ class TestBotsEndpoints(APITestCase):
             'link': bot.link,
             'author': bot.author,
             'id': bot.id,
+            'category': None
         }
 
         endpoint = reverse('detail', kwargs={'pk': bot.id})
@@ -43,7 +49,8 @@ class TestBotsEndpoints(APITestCase):
             'description': 'Adorable bot',
             'link': 'https//my_bot',
             'author': 'Nobody',
-            'id': 1
+            'id': 1,
+            'category': None
         }
 
         response = self.client.post(endpoint, expected_json, format='json')
@@ -68,6 +75,7 @@ class TestBotsEndpoints(APITestCase):
             'description': new_bot.description,
             'author': new_bot.author,
             'id': old_bot.id,
+            'category': None
         }
 
         url = reverse('update', kwargs={'pk': old_bot.id})
@@ -80,3 +88,12 @@ class TestBotsEndpoints(APITestCase):
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == bot_dict
+
+
+class CreateBotTest(TestCase):
+
+    def test_create_bot(self):
+        out = StringIO()
+        make_option('--total', dest='total', type=int, help='Help description...')
+        call_command('create_bot', total=2, stdout=out)
+        print(out)
