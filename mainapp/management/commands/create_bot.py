@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         total = options['total']
-        for i in range(total):
+        for _ in range(total):
             bot = baker.prepare(Bot)
             bot.save()
             self.stdout.write(self.style.SUCCESS('Successfully created bot'))
