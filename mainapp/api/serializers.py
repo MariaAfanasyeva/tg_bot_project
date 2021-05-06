@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from rest_framework import serializers
 from ..models import Bot, Category
 
@@ -18,7 +19,7 @@ class BotSerializer(serializers.ModelSerializer):
 
 
 class BotCategoryDetailSerializer(serializers.ModelSerializer):
-    bots = serializers.SerializerMethodField()
+    bots = serializers.SerializerMethodField('paginated_bots')
 
     class Meta:
         model = Category
@@ -26,4 +27,18 @@ class BotCategoryDetailSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_bots(obj):
+        print(obj)
         return BotSerializer(Bot.objects.filter(category=obj), many=True).data
+
+    def paginated_bots(self, obj):
+        page_size = self.context['request'].query_params.get('size') or 10
+        bots = Bot.objects.filter(category=obj)
+        paginator = Paginator(bots, page_size)
+        page = self.context['request'].query_params.get('page') or 1
+
+        words_in_book = paginator.page(page)
+        serializer = BotSerializer(words_in_book, many=True)
+
+        return serializer.data
+
+
