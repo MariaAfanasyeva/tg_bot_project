@@ -2,6 +2,7 @@ from ..models import Bot, Category
 from .serializers import BotSerializer, CategorySerializer, BotCategoryDetailSerializer
 import logging
 from rest_framework import generics
+from .paginations import CustomPagination
 
 logger = logging.getLogger(__name__)
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 class GetAllBotsList(generics.ListAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    pagination_class = CustomPagination
 
 
 class GetBotDetail(generics.RetrieveAPIView):
@@ -39,4 +41,3 @@ class GetAllCategoriesList(generics.ListAPIView):
 class GetCategoryDetail(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = BotCategoryDetailSerializer
-

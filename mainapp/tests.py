@@ -18,12 +18,12 @@ class TestBotsEndpoints(APITestCase):
 
     def test_get_list(self):
         endpoint = reverse('bots')
-        baker.make(Bot, _quantity=3)
+        baker.make(Bot, _quantity=4)
         response = self.client.get(
             endpoint
         )
         assert response.status_code == 200
-        assert len(json.loads(response.content)) == 3
+        assert len(json.loads(response.content)) == 4
 
     def test_get_one_bot(self):
         bot = baker.make(Bot)

@@ -15,5 +15,8 @@ class Bot(models.Model):
     author = models.CharField(max_length=255)
     category = models.ForeignKey(Category, related_name='category', on_delete=models.CASCADE, null=True, blank=True)
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return f"{self.name} by {self.author}"
