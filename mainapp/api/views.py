@@ -1,5 +1,5 @@
 from ..models import Bot, Category
-from .serializers import BotSerializer, CategorySerializer, BotCategoryDetailSerializer
+from .serializers import BotSerializer, CategorySerializer
 import logging
 from rest_framework import generics
 from .paginations import CustomPagination
