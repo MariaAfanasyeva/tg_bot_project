@@ -17,7 +17,7 @@ jobs:
         include:
           - db: postgres
             db_port: 5432
-            
+
     services:
       postgres:
         image: postgres
@@ -54,4 +54,3 @@ jobs:
         python_files: tests.py test_*.py *_tests.py
       run: |
         py.test
-

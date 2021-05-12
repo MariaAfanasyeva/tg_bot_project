@@ -1,6 +1,6 @@
-from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def homePage(request):
-    return HttpResponse('Hello, World!')
+    return HttpResponse("Hello, World!")
