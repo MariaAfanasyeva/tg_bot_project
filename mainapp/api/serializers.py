@@ -14,16 +14,4 @@ class BotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bot
-        fields = "__all__"
-
-
-class BotCategoryDetailSerializer(serializers.ModelSerializer):
-    bots = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Category
-        fields = "__all__"
-
-    @staticmethod
-    def get_bots(obj):
-        return BotSerializer(Bot.objects.filter(category=obj), many=True).data
+        fields = '__all__'
