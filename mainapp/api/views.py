@@ -1,8 +1,11 @@
-from ..models import Bot, Category
-from .serializers import BotSerializer, CategorySerializer, BotCategoryDetailSerializer
 import logging
+
 from rest_framework import generics
+
+from ..models import Bot, Category
 from .paginations import CustomPagination
+from .serializers import (BotCategoryDetailSerializer, BotSerializer,
+                          CategorySerializer)
 
 logger = logging.getLogger(__name__)
 
