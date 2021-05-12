@@ -40,6 +40,11 @@ class GetAllCategoriesList(generics.ListAPIView):
     serializer_class = CategorySerializer
 
 
-class GetCategoryDetail(generics.RetrieveAPIView):
-    queryset = Category.objects.all()
-    serializer_class = BotCategoryDetailSerializer
+class GetCategoryDetail(generics.ListAPIView):
+    serializer_class = BotSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        category = self.kwargs["pk"]
+        queryset = Bot.objects.filter(category_id=category)
+        return queryset
