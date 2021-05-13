@@ -14,7 +14,7 @@ class GetAllBotsList(generics.ListAPIView):
     serializer_class = BotSerializer
     pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter]
-    search_fields = ["name", "description", "category__name"]
+    search_fields = ["name", "description", "category__name", "author"]
 
 
 class GetBotDetail(generics.RetrieveAPIView):
