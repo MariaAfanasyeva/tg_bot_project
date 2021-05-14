@@ -1,6 +1,6 @@
 import logging
 
-from rest_framework import generics
+from rest_framework import filters, generics
 
 from ..models import Bot, Category
 from .paginations import CustomPagination
@@ -13,6 +13,8 @@ class GetAllBotsList(generics.ListAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
     pagination_class = CustomPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name", "description", "category__name", "author"]
 
 
 class GetBotDetail(generics.RetrieveAPIView):
