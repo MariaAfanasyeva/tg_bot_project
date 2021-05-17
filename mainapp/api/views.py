@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import filters, generics
+from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category
 from .paginations import CustomPagination
@@ -23,6 +24,9 @@ class GetBotDetail(generics.RetrieveAPIView):
 
 
 class CreateBot(generics.CreateAPIView):
+    permission_classes = [
+        IsAuthenticated,
+    ]
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
 
