@@ -24,9 +24,6 @@ class GetBotDetail(generics.RetrieveAPIView):
 
 
 class CreateBot(generics.CreateAPIView):
-    permission_classes = [
-        IsAuthenticated,
-    ]
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
 
