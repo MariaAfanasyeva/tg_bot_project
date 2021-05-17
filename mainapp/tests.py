@@ -3,16 +3,20 @@ from io import StringIO
 from optparse import make_option
 
 import pytest
+from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_jwt.settings import api_settings
 
 from .models import Bot
 
 pytestmark = pytest.mark.django_db
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 class TestBotsEndpoints(APITestCase):
@@ -90,3 +94,23 @@ class CreateBotTest(TestCase):
         make_option("--total", dest="total", type=int, help="Help description...")
         call_command("create_bot", total=2, stdout=out)
         print(out)
+
+
+class LoginTest(APITestCase):
+    def setUp(self) -> None:
+        self.username = "usuario"
+        self.password = "contrasegna"
+        self.data = {"username": self.username, "password": self.password}
+        self.jwt_url = "http://127.0.0.1:8000/api/token/"
+
+    def test_incorrect_credentials(self):
+        self.data = {"username": self.username, "password": "wrongPassword"}
+        response = self.client.post(self.jwt_url, self.data)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_correct_credentials(self):
+        user = User.objects.create_user(
+            username=self.username, email="usuario@mail.com", password=self.password
+        )
+        response = self.client.post(self.jwt_url, self.data, format="json")
+        assert response.status_code == status.HTTP_200_OK
