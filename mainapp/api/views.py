@@ -1,7 +1,6 @@
 import logging
 
 from rest_framework import filters, generics
-from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category
 from .paginations import CustomPagination
