@@ -8,9 +8,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("mainapp.urls")),
     path("api/", include("mainapp.api.urls")),
-    path("api-auth/", include("rest_framework.urls")),
     path("auth/", include("djoser.urls")),
-    path("auth/", include("djoser.urls.jwt")),
     path(
         "api/token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"
     ),

@@ -2,11 +2,13 @@ import json
 from io import StringIO
 from optparse import make_option
 
+import jwt
 import pytest
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
+from dotenv import dotenv_values
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -114,3 +116,21 @@ class LoginTest(APITestCase):
         )
         response = self.client.post(self.jwt_url, self.data, format="json")
         assert response.status_code == status.HTTP_200_OK
+
+    def test_token_is_returned(self):
+        user = User.objects.create_user(
+            username=self.username, email="usuario@mail.com", password=self.password
+        )
+        response = self.client.post(self.jwt_url, self.data, format="json")
+        assert isinstance(response.data["access"], str)
+        assert isinstance(response.data["refresh"], str)
+
+    def test_is_right_format(self):
+        user = User.objects.create_user(
+            username=self.username, email="usuario@mail.com", password=self.password
+        )
+        response = self.client.post(self.jwt_url, self.data, format="json")
+        access_key = response.data["access"]
+        secret_key = dotenv_values(".env.dev")["SECRET_KEY"]
+        decoded = jwt.decode(access_key, secret_key, algorithms="HS256")
+        assert decoded["token_type"] == "access"
