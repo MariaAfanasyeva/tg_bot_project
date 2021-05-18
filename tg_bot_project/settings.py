@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import datetime
 import os
 from pathlib import Path
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "corsheaders",
+    "djoser",
     "django_extensions",
 ]
 
@@ -60,9 +62,27 @@ ROOT_URLCONF = "tg_bot_project.urls"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
+JWT_AUTH = {
+    "JWT_EXPIRATION_DELTA": datetime.timedelta(days=2),
+    "JWT_ALLOW_REFRESH": True,
+    "JWT_REFRESH_EXPIRATION_DELTA": datetime.timedelta(days=7),  # default
+}
+
+
+DJOSER = {
+    "SEND_ACTIVATION_EMAIL": True,
+    # 'SEND_CONFIRMATION_EMAIL': True,
+    "ACTIVATION_URL": "auth/activate/{uid}/{token}/",
+    "PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND": True,
+    "PASSWORD_RESET_CONFIRM_URL": "auth/reset/confirm/{uid}/{token}/",
+    "TOKEN_MODEL": None,
+}
 
 TEMPLATES = [
     {
