@@ -132,7 +132,7 @@ LOGGING = {
 
 DATABASES = {
     "default": {
-        "ENGINE": dotenv_values(".env.dev")["SQL_ENGINE"],
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": dotenv_values(".env.dev")["SQL_DATABASE"],
         "USER": dotenv_values(".env.dev")["SQL_USER"],
         "PASSWORD": dotenv_values(".env.dev")["SQL_PASSWORD"],
@@ -143,7 +143,7 @@ DATABASES = {
 if os.environ.get("GITHUB_WORKFLOW"):
     DATABASES = {
         "default": {
-            "ENGINE": dotenv_values(".env.dev")["SQL_ENGINE"],
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
             "NAME": dotenv_values(".env.dev")["SQL_DATABASE"],
             "USER": dotenv_values(".env.dev")["SQL_USER"],
             "PASSWORD": dotenv_values(".env.dev")["SQL_PASSWORD"],
