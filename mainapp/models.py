@@ -20,6 +20,9 @@ class Bot(models.Model):
         null=True,
         blank=True,
     )
+    auth_user_id = models.IntegerField(
+        null=True, blank=True, verbose_name="added by user_id"
+    )
 
     class Meta:
         ordering = ["id"]
