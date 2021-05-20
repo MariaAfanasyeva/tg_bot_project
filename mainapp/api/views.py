@@ -29,7 +29,7 @@ class CreateBot(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(auth_user_id=self.request.user.id)
+        serializer.save(auth_user_id=self.request.user)
 
 
 class UpdateBot(generics.UpdateAPIView):
