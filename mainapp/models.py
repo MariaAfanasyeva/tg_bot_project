@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -20,8 +21,12 @@ class Bot(models.Model):
         null=True,
         blank=True,
     )
-    auth_user_id = models.IntegerField(
-        null=True, blank=True, verbose_name="added by user_id"
+    auth_user_id = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        verbose_name="added by user_id",
+        on_delete=models.SET_NULL,
     )
 
     class Meta:

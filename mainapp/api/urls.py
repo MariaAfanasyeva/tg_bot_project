@@ -14,4 +14,5 @@ urlpatterns = [
         views.GetCategoryDetail.as_view(),
         name="category_detail",
     ),
+    path("user/<int:id>/bots", views.GetBotsFromUser.as_view(), name="user_bots"),
 ]

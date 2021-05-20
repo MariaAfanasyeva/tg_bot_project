@@ -55,3 +55,13 @@ class GetCategoryDetail(generics.ListAPIView):
         category = self.kwargs["pk"]
         queryset = Bot.objects.filter(category_id=category)
         return queryset
+
+
+class GetBotsFromUser(generics.ListAPIView):
+    serializer_class = BotSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user_id = self.kwargs["id"]
+        queryset = Bot.objects.filter(auth_user_id=user_id)
+        return queryset
