@@ -1,11 +1,12 @@
 import logging
 
+from django.contrib.auth.models import User
 from rest_framework import filters, generics
 from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category
 from .paginations import CustomPagination
-from .serializers import BotSerializer, CategorySerializer
+from .serializers import BotSerializer, CategorySerializer, UserSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -65,3 +66,8 @@ class GetBotsFromUser(generics.ListAPIView):
         user_id = self.kwargs["id"]
         queryset = Bot.objects.filter(auth_user_id=user_id)
         return queryset
+
+
+class GetUser(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User
