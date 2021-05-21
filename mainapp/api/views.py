@@ -2,9 +2,9 @@ import logging
 
 from rest_framework import filters, generics
 
-from ..models import Bot, Category
+from ..models import Bot, Category, Comment
 from .paginations import CustomPagination
-from .serializers import BotSerializer, CategorySerializer
+from .serializers import BotSerializer, CategorySerializer, CommentSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -50,3 +50,33 @@ class GetCategoryDetail(generics.ListAPIView):
         category = self.kwargs["pk"]
         queryset = Bot.objects.filter(category_id=category)
         return queryset
+
+
+class GetAllCommentsToBotList(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        bot = self.kwargs["pk"]
+        queryset = Comment.objects.filter(to_bot_id=bot)
+        return queryset
+
+
+# class GetBotDetail(generics.RetrieveAPIView):
+#     queryset = Bot.objects.all()
+#     serializer_class = BotSerializer
+#
+#
+# class CreateBot(generics.CreateAPIView):
+#     queryset = Bot.objects.all()
+#     serializer_class = BotSerializer
+#
+#
+# class UpdateBot(generics.UpdateAPIView):
+#     queryset = Bot.objects.all()
+#     serializer_class = BotSerializer
+#
+#
+# class DeleteBot(generics.DestroyAPIView):
+#     queryset = Bot.objects.all()
+#     serializer_class = BotSerializer

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -26,3 +27,25 @@ class Bot(models.Model):
 
     def __str__(self):
         return f"{self.name} by {self.author}"
+
+
+class Comment(models.Model):
+    to_bot = models.ForeignKey(
+        Bot, related_name="bot", on_delete=models.CASCADE, verbose_name="comment to bot"
+    )
+    author_id = models.ForeignKey(
+        User,
+        related_name="author",
+        on_delete=models.CASCADE,
+        verbose_name="comment author",
+    )
+    creation_date = models.DateTimeField(
+        verbose_name="creation date", null=True, blank=True
+    )
+    content = models.TextField(verbose_name="comment text")
+
+    class Meta:
+        ordering = ["creation_date"]
+
+    def __str__(self):
+        return f"comment to {self.to_bot} by {self.author_id}"
