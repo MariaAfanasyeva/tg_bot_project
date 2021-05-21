@@ -14,4 +14,21 @@ urlpatterns = [
         views.GetCategoryDetail.as_view(),
         name="category_detail",
     ),
+    path(
+        "bot/<int:pk>/comments",
+        views.GetAllCommentsToBotList.as_view(),
+        name="comments_to_bot",
+    ),
+    path(
+        "user/<int:pk>/comments",
+        views.GetAllCommentsByUserList.as_view(),
+        name="comments_by_user",
+    ),
+    path("comment/create", views.CreateComment.as_view(), name="comment_create"),
+    path(
+        "comment/update/<int:pk>", views.UpdateComment.as_view(), name="comment_update"
+    ),
+    path(
+        "comment/delete/<int:pk>", views.DeleteComment.as_view(), name="comment_delete"
+    ),
 ]

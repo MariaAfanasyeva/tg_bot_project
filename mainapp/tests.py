@@ -1,3 +1,4 @@
+import datetime
 import json
 from io import StringIO
 from optparse import make_option
@@ -11,10 +12,10 @@ from django.urls import reverse
 from dotenv import dotenv_values
 from model_bakery import baker
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_jwt.settings import api_settings
 
-from .models import Bot
+from .models import Bot, Comment
 
 pytestmark = pytest.mark.django_db
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -134,3 +135,78 @@ class LoginTest(APITestCase):
         secret_key = dotenv_values(".env.dev")["SECRET_KEY"]
         decoded = jwt.decode(access_key, secret_key, algorithms="HS256")
         assert decoded["token_type"] == "access"
+
+
+class TestCommentsEndpoints(APITestCase):
+    def test_get_list_to_bot(self):
+        bot = baker.make(Bot)
+        endpoint = reverse("comments_to_bot", kwargs={"pk": bot.id})
+        baker.make(Comment, _quantity=4)
+        response = self.client.get(endpoint)
+        assert response.status_code == 200
+        assert len(json.loads(response.content)) == 4
+
+    def test_get_list_by_user(self):
+        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
+        endpoint = reverse("comments_by_user", kwargs={"pk": user.id})
+        baker.make(Comment, _quantity=4)
+        response = self.client.get(endpoint)
+        assert response.status_code == 200
+        assert len(json.loads(response.content)) == 4
+
+    def test_create(self):
+        endpoint = reverse("comment_create")
+        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
+        client = APIClient()
+        bot = baker.make(Bot)
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+        data_json = {
+            "to_bot": bot.id,
+            "author_id": user.id,
+            "id": 1,
+            "content": "aaaaa",
+        }
+        expected_json = {
+            "to_bot": bot.id,
+            "author_id": user.id,
+            "id": 1,
+            "content": "aaaaa",
+            "creation_date": current_date,
+        }
+
+        response = client.post(endpoint, data_json, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data == expected_json
+
+    def test_delete_comment(self):
+        comment = baker.make(Comment)
+        url = reverse("comment_delete", kwargs={"pk": comment.pk})
+
+        response = self.client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert Comment.objects.all().count() == 0
+
+    def test_update(self):
+        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
+        bot = baker.make(Bot)
+        old_comment = Comment.objects.create(
+            content="Bad bot", author_id=user, to_bot=bot
+        )
+        comment_dict = {"content": "Good bot", "author_id": user.id, "to_bot": bot.id}
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+        expected_json = {
+            "content": "Good bot",
+            "author_id": user.id,
+            "to_bot": bot.id,
+            "creation_date": current_date,
+            "id": old_comment.id,
+        }
+
+        url = reverse("comment_update", kwargs={"pk": old_comment.id})
+
+        response = self.client.put(url, comment_dict, format="json")
+        print(response.data)
+
+        assert response.status_code == status.HTTP_200_OK
+        # assert response.data == expected_json

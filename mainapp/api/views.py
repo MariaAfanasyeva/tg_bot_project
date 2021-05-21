@@ -62,21 +62,26 @@ class GetAllCommentsToBotList(generics.ListAPIView):
         return queryset
 
 
-# class GetBotDetail(generics.RetrieveAPIView):
-#     queryset = Bot.objects.all()
-#     serializer_class = BotSerializer
-#
-#
-# class CreateBot(generics.CreateAPIView):
-#     queryset = Bot.objects.all()
-#     serializer_class = BotSerializer
-#
-#
-# class UpdateBot(generics.UpdateAPIView):
-#     queryset = Bot.objects.all()
-#     serializer_class = BotSerializer
-#
-#
-# class DeleteBot(generics.DestroyAPIView):
-#     queryset = Bot.objects.all()
-#     serializer_class = BotSerializer
+class GetAllCommentsByUserList(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user = self.kwargs["pk"]
+        queryset = Comment.objects.filter(author_id=user)
+        return queryset
+
+
+class CreateComment(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+
+class UpdateComment(generics.UpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+
+class DeleteComment(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer

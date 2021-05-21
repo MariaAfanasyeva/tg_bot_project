@@ -39,8 +39,8 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         verbose_name="comment author",
     )
-    creation_date = models.DateTimeField(
-        verbose_name="creation date", null=True, blank=True
+    creation_date = models.DateField(
+        verbose_name="creation date", null=True, blank=True, auto_now_add=True
     )
     content = models.TextField(verbose_name="comment text")
 

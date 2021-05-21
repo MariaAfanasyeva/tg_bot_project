@@ -18,6 +18,9 @@ class BotSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    # to_bot = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    # author_id = serializers.SlugRelatedField(slug_field="username", read_only=True)
+
     class Meta:
         model = Comment
         fields = "__all__"
