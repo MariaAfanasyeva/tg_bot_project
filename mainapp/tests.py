@@ -209,4 +209,4 @@ class TestCommentsEndpoints(APITestCase):
         print(response.data)
 
         assert response.status_code == status.HTTP_200_OK
-        # assert response.data == expected_json
+        assert response.data == expected_json
