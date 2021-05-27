@@ -212,7 +212,7 @@ class TestCommentsEndpoints(APITestCase):
         client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
         bot = baker.make(Bot)
         current_date = datetime.date.today().strftime("%Y-%m-%d")
-        endpoint = reverse("CREATE/comment", kwargs={"pk": bot.pk})
+        endpoint = reverse("comment_create", kwargs={"pk": bot.pk})
         data_json = {
             "content": "Beeeeee",
         }
@@ -230,7 +230,7 @@ class TestCommentsEndpoints(APITestCase):
 
     def test_create_user_not_authenticated(self):
         bot = baker.make(Bot)
-        endpoint = reverse("CREATE/comment", kwargs={"pk": bot.pk})
+        endpoint = reverse("comment_create", kwargs={"pk": bot.pk})
         expected_json = {
             "detail": ErrorDetail(
                 string="Authentication credentials were not provided.",
@@ -244,7 +244,7 @@ class TestCommentsEndpoints(APITestCase):
 
     def test_delete_comment(self):
         comment = baker.make(Comment)
-        url = reverse("DELETE/comment", kwargs={"pk": comment.pk})
+        url = reverse("comment_delete", kwargs={"pk": comment.pk})
 
         response = self.client.delete(url)
 
@@ -274,7 +274,7 @@ class TestCommentsEndpoints(APITestCase):
             "id": old_comment.id,
         }
 
-        url = reverse("PUT/comment", kwargs={"pk": old_comment.id})
+        url = reverse("comment_update", kwargs={"pk": old_comment.id})
 
         response = self.client.put(url, comment_dict, format="json")
 
