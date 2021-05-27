@@ -28,6 +28,10 @@ class GetBotDetail(generics.RetrieveAPIView):
 class CreateBot(generics.CreateAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(auth_user_id=self.request.user)
 
 
 class UpdateBot(generics.UpdateAPIView):
@@ -53,6 +57,21 @@ class GetCategoryDetail(generics.ListAPIView):
         category = self.kwargs["pk"]
         queryset = Bot.objects.filter(category_id=category)
         return queryset
+
+
+class GetBotsFromUser(generics.ListAPIView):
+    serializer_class = BotSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user_id = self.kwargs["id"]
+        queryset = Bot.objects.filter(auth_user_id=user_id)
+        return queryset
+
+
+class GetUser(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User
 
 
 class GetAllCommentsToBotList(generics.ListAPIView):

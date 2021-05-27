@@ -21,6 +21,13 @@ class Bot(models.Model):
         null=True,
         blank=True,
     )
+    auth_user_id = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        verbose_name="added by user_id",
+        on_delete=models.SET_NULL,
+    )
 
     class Meta:
         ordering = ["id"]

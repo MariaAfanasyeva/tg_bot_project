@@ -33,4 +33,6 @@ urlpatterns = [
     path(
         "comment/delete/<int:pk>", views.DeleteComment.as_view(), name="DELETE/comment"
     ),
+    path("user/<int:id>/bots", views.GetBotsFromUser.as_view(), name="user_bots"),
+    path("user/<int:pk>/info", views.GetUser.as_view(), name="user"),
 ]
