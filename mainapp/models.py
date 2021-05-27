@@ -33,11 +33,13 @@ class Comment(models.Model):
     to_bot = models.ForeignKey(
         Bot, related_name="bot", on_delete=models.CASCADE, verbose_name="comment to bot"
     )
-    author_id = models.ForeignKey(
+    author = models.ForeignKey(
         User,
         related_name="author",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         verbose_name="comment author",
+        null=True,
+        blank=True,
     )
     creation_date = models.DateField(
         verbose_name="creation date", null=True, blank=True, auto_now_add=True

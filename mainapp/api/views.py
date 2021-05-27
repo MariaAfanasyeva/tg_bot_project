@@ -1,10 +1,13 @@
 import logging
 
+from django.contrib.auth.models import User
 from rest_framework import filters, generics
+from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category, Comment
 from .paginations import CustomPagination
-from .serializers import BotSerializer, CategorySerializer, CommentSerializer
+from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
+                          UserSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +60,8 @@ class GetAllCommentsToBotList(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        bot = self.kwargs["pk"]
-        queryset = Comment.objects.filter(to_bot_id=bot)
+        bot_id = self.kwargs["pk"]
+        queryset = Comment.objects.filter(to_bot_id=bot_id)
         return queryset
 
 
@@ -67,14 +70,19 @@ class GetAllCommentsByUserList(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        user = self.kwargs["pk"]
-        queryset = Comment.objects.filter(author_id=user)
+        user_id = self.kwargs["pk"]
+        queryset = Comment.objects.filter(author_id=user_id)
         return queryset
 
 
 class CreateComment(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        current_bot = Bot.objects.get(id=self.kwargs["pk"])
+        serializer.save(author=self.request.user, to_bot=current_bot)
 
 
 class UpdateComment(generics.UpdateAPIView):
@@ -85,3 +93,8 @@ class UpdateComment(generics.UpdateAPIView):
 class DeleteComment(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+
+class GetUser(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User

@@ -12,6 +12,7 @@ from django.urls import reverse
 from dotenv import dotenv_values
 from model_bakery import baker
 from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_jwt.settings import api_settings
 
@@ -138,6 +139,12 @@ class LoginTest(APITestCase):
 
 
 class TestCommentsEndpoints(APITestCase):
+    def setUp(self) -> None:
+        self.username = "usuario"
+        self.password = "contrasegna"
+        self.credentials = {"username": self.username, "password": self.password}
+        self.jwt_url = "http://127.0.0.1:8000/api/token/"
+
     def test_get_list_to_bot(self):
         bot = baker.make(Bot)
         endpoint = reverse("comments_to_bot", kwargs={"pk": bot.id})
@@ -154,33 +161,52 @@ class TestCommentsEndpoints(APITestCase):
         assert response.status_code == 200
         assert len(json.loads(response.content)) == 4
 
-    def test_create(self):
-        endpoint = reverse("comment_create")
-        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
+    def test_create_user_authenticated(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
         client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
         bot = baker.make(Bot)
         current_date = datetime.date.today().strftime("%Y-%m-%d")
+        endpoint = reverse("CREATE/comment", kwargs={"pk": bot.pk})
         data_json = {
-            "to_bot": bot.id,
-            "author_id": user.id,
-            "id": 1,
-            "content": "aaaaa",
+            "content": "Beeeeee",
         }
         expected_json = {
-            "to_bot": bot.id,
-            "author_id": user.id,
-            "id": 1,
-            "content": "aaaaa",
+            "content": "Beeeeee",
             "creation_date": current_date,
+            "to_bot": bot.name,
+            "author": user.username,
+            "id": 1,
         }
 
         response = client.post(endpoint, data_json, format="json")
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == 201
+        assert response.data == expected_json
+
+    def test_create_user_not_authenticated(self):
+        bot = baker.make(Bot)
+        endpoint = reverse("CREATE/comment", kwargs={"pk": bot.pk})
+        expected_json = {
+            "detail": ErrorDetail(
+                string="Authentication credentials were not provided.",
+                code="not_authenticated",
+            )
+        }
+
+        response = self.client.post(endpoint, expected_json, format="json")
+        assert response.status_code == 401
         assert response.data == expected_json
 
     def test_delete_comment(self):
         comment = baker.make(Comment)
-        url = reverse("comment_delete", kwargs={"pk": comment.pk})
+        url = reverse("DELETE/comment", kwargs={"pk": comment.pk})
 
         response = self.client.delete(url)
 
@@ -188,25 +214,31 @@ class TestCommentsEndpoints(APITestCase):
         assert Comment.objects.all().count() == 0
 
     def test_update(self):
-        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
-        bot = baker.make(Bot)
-        old_comment = Comment.objects.create(
-            content="Bad bot", author_id=user, to_bot=bot
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
         )
-        comment_dict = {"content": "Good bot", "author_id": user.id, "to_bot": bot.id}
+        bot = baker.make(Bot)
+        old_comment = Comment.objects.create(content="Bad bot", author=user, to_bot=bot)
+        comment_dict = {
+            "content": "Good bot",
+            "author": user.username,
+            "to_bot": bot.name,
+        }
         current_date = datetime.date.today().strftime("%Y-%m-%d")
         expected_json = {
             "content": "Good bot",
-            "author_id": user.id,
-            "to_bot": bot.id,
+            "author": user.username,
+            "to_bot": bot.name,
             "creation_date": current_date,
             "id": old_comment.id,
         }
 
-        url = reverse("comment_update", kwargs={"pk": old_comment.id})
+        url = reverse("PUT/comment", kwargs={"pk": old_comment.id})
 
         response = self.client.put(url, comment_dict, format="json")
-        print(response.data)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected_json

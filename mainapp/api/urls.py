@@ -24,11 +24,13 @@ urlpatterns = [
         views.GetAllCommentsByUserList.as_view(),
         name="comments_by_user",
     ),
-    path("comment/create", views.CreateComment.as_view(), name="comment_create"),
     path(
-        "comment/update/<int:pk>", views.UpdateComment.as_view(), name="comment_update"
+        "bot/<int:pk>/comment/create",
+        views.CreateComment.as_view(),
+        name="CREATE/comment",
     ),
+    path("comment/update/<int:pk>", views.UpdateComment.as_view(), name="PUT/comment"),
     path(
-        "comment/delete/<int:pk>", views.DeleteComment.as_view(), name="comment_delete"
+        "comment/delete/<int:pk>", views.DeleteComment.as_view(), name="DELETE/comment"
     ),
 ]
