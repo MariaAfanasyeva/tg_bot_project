@@ -76,8 +76,6 @@ JWT_AUTH = {
 
 
 DJOSER = {
-    "SEND_ACTIVATION_EMAIL": True,
-    # 'SEND_CONFIRMATION_EMAIL': True,
     "ACTIVATION_URL": "auth/activate/{uid}/{token}/",
     "PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND": True,
     "PASSWORD_RESET_CONFIRM_URL": "auth/reset/confirm/{uid}/{token}/",
