@@ -21,7 +21,7 @@ class Bot(models.Model):
         null=True,
         blank=True,
     )
-    auth_user_id = models.ForeignKey(
+    add_by_user = models.ForeignKey(
         User,
         null=True,
         blank=True,

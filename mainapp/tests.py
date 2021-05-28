@@ -46,7 +46,7 @@ class TestBotsEndpoints(APITestCase):
             "author": bot.author,
             "id": bot.id,
             "category": None,
-            "auth_user_id": None,
+            "add_by_user": None,
         }
 
         endpoint = reverse("detail", kwargs={"pk": bot.id})
@@ -91,7 +91,7 @@ class TestBotsEndpoints(APITestCase):
             "link": "https://my_bot",
             "author": "Nobody",
             "category": None,
-            "auth_user_id": user.id,
+            "add_by_user": user.id,
             "id": 1,
         }
 
@@ -99,34 +99,118 @@ class TestBotsEndpoints(APITestCase):
         assert response.status_code == 201
         assert response.data == expected_json
 
-    def test_delete(self):
-        bot = baker.make(Bot)
+    def test_delete_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot = Bot.objects.create(
+            name="AAAA", description="BBB", link="CCC", author="DDDD", add_by_user=user
+        )
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
         url = reverse("delete", kwargs={"pk": bot.pk})
 
-        response = self.client.delete(url)
+        response = client.delete(url)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert Bot.objects.all().count() == 0
 
-    def test_update(self):
-        old_bot = baker.make(Bot)
-        new_bot = baker.prepare(Bot)
+    def test_delete_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = Bot.objects.create(
+            name="AAAA", description="BBB", link="CCC", author="DDDD", add_by_user=user2
+        )
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("delete", kwargs={"pk": bot.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == 403
+        assert Bot.objects.all().count() == 1
+
+    def test_update_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot1 = Bot.objects.create(
+            name="AAAA", description="BBB", link="CCC", author="DDDD", add_by_user=user
+        )
         bot_dict = {
-            "link": new_bot.link,
-            "name": new_bot.name,
-            "description": new_bot.description,
-            "author": new_bot.author,
-            "id": old_bot.id,
+            "link": "ccc",
+            "name": "aaaa",
+            "description": "bbbb",
+            "author": "dddd",
+            "id": bot1.id,
             "category": None,
-            "auth_user_id": None,
+            "add_by_user": user.id,
         }
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("update", kwargs={"pk": bot1.id})
 
-        url = reverse("update", kwargs={"pk": old_bot.id})
-
-        response = self.client.put(url, bot_dict, format="json")
+        response = client.put(url, bot_dict, format="json")
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == bot_dict
+
+    def test_update_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot1 = Bot.objects.create(
+            name="AAAA", description="BBB", link="CCC", author="DDDD", add_by_user=user2
+        )
+        bot_dict = {
+            "link": "ccc",
+            "name": "aaaa",
+            "description": "bbbb",
+            "author": "dddd",
+            "id": bot1.id,
+            "category": None,
+            "add_by_user": user2.id,
+        }
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("update", kwargs={"pk": bot1.id})
+
+        response = client.put(url, bot_dict, format="json")
+
+        assert response.status_code == 403
 
 
 class CreateBotTest(TestCase):
