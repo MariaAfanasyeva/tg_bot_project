@@ -77,7 +77,7 @@ class GetBotsFromUser(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs["id"]
-        queryset = Bot.objects.filter(auth_user_id=user_id)
+        queryset = Bot.objects.filter(add_by_user=user_id)
         return queryset
 
 
