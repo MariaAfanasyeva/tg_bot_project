@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category
 from .paginations import CustomPagination
+from .permissions import IsAuthor
 from .serializers import BotSerializer, CategorySerializer, UserSerializer
 
 logger = logging.getLogger(__name__)
@@ -30,17 +31,22 @@ class CreateBot(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(auth_user_id=self.request.user)
+        serializer.save(add_by_user=self.request.user)
 
 
 class UpdateBot(generics.UpdateAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    permission_classes = [IsAuthor]
+
+    def perform_create(self, serializer):
+        serializer.save(add_by_user=self.request.user)
 
 
 class DeleteBot(generics.DestroyAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    permission_classes = [IsAuthor]
 
 
 class GetAllCategoriesList(generics.ListAPIView):
@@ -64,7 +70,7 @@ class GetBotsFromUser(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs["id"]
-        queryset = Bot.objects.filter(auth_user_id=user_id)
+        queryset = Bot.objects.filter(add_by_user=user_id)
         return queryset
 
 
