@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from ..models import Bot, Category, Comment
 from .paginations import CustomPagination
+from .permissions import IsAuthor
 from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
                           UserSerializer)
 
@@ -32,20 +33,30 @@ class CreateBot(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(auth_user_id=self.request.user)
+        serializer.save(add_by_user=self.request.user)
 
 
 class UpdateBot(generics.UpdateAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    permission_classes = [IsAuthor]
+
+    def perform_create(self, serializer):
+        serializer.save(add_by_user=self.request.user)
 
 
 class DeleteBot(generics.DestroyAPIView):
     queryset = Bot.objects.all()
     serializer_class = BotSerializer
+    permission_classes = [IsAuthor]
 
 
 class GetAllCategoriesList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GetCategory(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -108,8 +119,3 @@ class CreateComment(generics.CreateAPIView):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
-
-class GetUser(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-    queryset = User

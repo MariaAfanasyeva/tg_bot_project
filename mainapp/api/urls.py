@@ -9,6 +9,7 @@ urlpatterns = [
     path("update/<int:pk>", views.UpdateBot.as_view(), name="update"),
     path("delete/<int:pk>", views.DeleteBot.as_view(), name="delete"),
     path("category", views.GetAllCategoriesList.as_view(), name="categories"),
+    path("category/<int:pk>", views.GetCategory.as_view(), name="category"),
     path(
         "category/<int:pk>/bots",
         views.GetCategoryDetail.as_view(),
