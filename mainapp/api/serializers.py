@@ -18,7 +18,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BotSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
-        slug_field="name", read_only=False, queryset=Category.objects.all()
+        slug_field="name",
+        read_only=False,
+        queryset=Category.objects.all(),
+        allow_null=True,
+        allow_empty=True,
+        required=False,
     )
 
     class Meta:
