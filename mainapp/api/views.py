@@ -1,8 +1,9 @@
 import logging
 
 from django.contrib.auth.models import User
-from rest_framework import filters, generics
+from rest_framework import filters, generics, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from ..models import Bot, Category, Comment
 from .paginations import CustomPagination
@@ -104,12 +105,7 @@ class CreateComment(generics.CreateAPIView):
         serializer.save(author=self.request.user, to_bot=current_bot)
 
 
-class UpdateComment(generics.UpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-
-class DeleteComment(generics.DestroyAPIView):
+class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 

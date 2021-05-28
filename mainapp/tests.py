@@ -244,7 +244,7 @@ class TestCommentsEndpoints(APITestCase):
 
     def test_delete_comment(self):
         comment = baker.make(Comment)
-        url = reverse("comment_delete", kwargs={"pk": comment.pk})
+        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
 
         response = self.client.delete(url)
 
@@ -274,7 +274,7 @@ class TestCommentsEndpoints(APITestCase):
             "id": old_comment.id,
         }
 
-        url = reverse("comment_update", kwargs={"pk": old_comment.id})
+        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
 
         response = self.client.put(url, comment_dict, format="json")
 
