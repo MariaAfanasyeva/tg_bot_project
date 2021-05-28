@@ -326,16 +326,7 @@ class TestCommentsEndpoints(APITestCase):
         assert response.status_code == 401
         assert response.data == expected_json
 
-    def test_delete_comment(self):
-        comment = baker.make(Comment)
-        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
-
-        response = self.client.delete(url)
-
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert Comment.objects.all().count() == 0
-
-    def test_update(self):
+    def test_delete_comment_by_owner(self):
         user = User.objects.create_user(
             username=self.username,
             email="usuario@mail.com",
@@ -343,6 +334,57 @@ class TestCommentsEndpoints(APITestCase):
             id=1,
         )
         bot = baker.make(Bot)
+        comment = Comment.objects.create(to_bot=bot, content="BBB", author=user)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+
+        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert Comment.objects.all().count() == 0
+
+    def test_delete_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = baker.make(Bot)
+        comment = Comment.objects.create(to_bot=bot, content="BBB", author=user2)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == 403
+        assert Bot.objects.all().count() == 1
+
+    def test_update_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot = baker.make(Bot)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
         old_comment = Comment.objects.create(content="Bad bot", author=user, to_bot=bot)
         comment_dict = {
             "content": "Good bot",
@@ -360,7 +402,40 @@ class TestCommentsEndpoints(APITestCase):
 
         url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
 
-        response = self.client.put(url, comment_dict, format="json")
+        response = client.put(url, comment_dict, format="json")
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected_json
+
+    def test_update_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = baker.make(Bot)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        old_comment = Comment.objects.create(
+            content="Bad bot", author=user2, to_bot=bot
+        )
+        comment_dict = {
+            "content": "Good bot",
+            "author": user2.username,
+            "to_bot": bot.name,
+        }
+
+        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
+
+        response = client.put(url, comment_dict, format="json")
+
+        assert response.status_code == 403
