@@ -11,7 +11,7 @@ class IsBotAuthor(permissions.BasePermission):
 
 
 class IsCommentAuthor(permissions.BasePermission):
-    message = "Only the authors can edit and delete bots"
+    message = "Only the authors can edit and delete comments"
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
