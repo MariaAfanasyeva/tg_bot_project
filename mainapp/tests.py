@@ -1,3 +1,4 @@
+import datetime
 import json
 from io import StringIO
 from optparse import make_option
@@ -15,7 +16,7 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_jwt.settings import api_settings
 
-from .models import Bot
+from .models import Bot, Comment
 
 pytestmark = pytest.mark.django_db
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -257,3 +258,184 @@ class LoginTest(APITestCase):
         secret_key = dotenv_values(".env.dev")["SECRET_KEY"]
         decoded = jwt.decode(access_key, secret_key, algorithms="HS256")
         assert decoded["token_type"] == "access"
+
+
+class TestCommentsEndpoints(APITestCase):
+    def setUp(self) -> None:
+        self.username = "usuario"
+        self.password = "contrasegna"
+        self.credentials = {"username": self.username, "password": self.password}
+        self.jwt_url = "http://127.0.0.1:8000/api/token/"
+
+    def test_get_list_to_bot(self):
+        bot = baker.make(Bot)
+        endpoint = reverse("comments_to_bot", kwargs={"pk": bot.id})
+        baker.make(Comment, _quantity=4)
+        response = self.client.get(endpoint)
+        assert response.status_code == 200
+        assert len(json.loads(response.content)) == 4
+
+    def test_get_list_by_user(self):
+        user = User.objects.create_user(username="me", email="usuario@mail.com", id=1)
+        endpoint = reverse("comments_by_user", kwargs={"pk": user.id})
+        baker.make(Comment, _quantity=4)
+        response = self.client.get(endpoint)
+        assert response.status_code == 200
+        assert len(json.loads(response.content)) == 4
+
+    def test_create_user_authenticated(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        bot = baker.make(Bot)
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+        endpoint = reverse("comment_create", kwargs={"pk": bot.pk})
+        data_json = {
+            "content": "Beeeeee",
+        }
+        expected_json = {
+            "content": "Beeeeee",
+            "creation_date": current_date,
+            "to_bot": bot.name,
+            "author": user.username,
+            "id": 1,
+        }
+
+        response = client.post(endpoint, data_json, format="json")
+        assert response.status_code == 201
+        assert response.data == expected_json
+
+    def test_create_user_not_authenticated(self):
+        bot = baker.make(Bot)
+        endpoint = reverse("comment_create", kwargs={"pk": bot.pk})
+        expected_json = {
+            "detail": ErrorDetail(
+                string="Authentication credentials were not provided.",
+                code="not_authenticated",
+            )
+        }
+
+        response = self.client.post(endpoint, expected_json, format="json")
+        assert response.status_code == 401
+        assert response.data == expected_json
+
+    def test_delete_comment_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot = baker.make(Bot)
+        comment = Comment.objects.create(to_bot=bot, content="BBB", author=user)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+
+        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert Comment.objects.all().count() == 0
+
+    def test_delete_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = baker.make(Bot)
+        comment = Comment.objects.create(to_bot=bot, content="BBB", author=user2)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == 403
+        assert Bot.objects.all().count() == 1
+
+    def test_update_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot = baker.make(Bot)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        old_comment = Comment.objects.create(content="Bad bot", author=user, to_bot=bot)
+        comment_dict = {
+            "content": "Good bot",
+            "author": user.username,
+            "to_bot": bot.name,
+        }
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+        expected_json = {
+            "content": "Good bot",
+            "author": user.username,
+            "to_bot": bot.name,
+            "creation_date": current_date,
+            "id": old_comment.id,
+        }
+
+        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
+
+        response = client.put(url, comment_dict, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == expected_json
+
+    def test_update_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = baker.make(Bot)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        old_comment = Comment.objects.create(
+            content="Bad bot", author=user2, to_bot=bot
+        )
+        comment_dict = {
+            "content": "Good bot",
+            "author": user2.username,
+            "to_bot": bot.name,
+        }
+
+        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
+
+        response = client.put(url, comment_dict, format="json")
+
+        assert response.status_code == 403
