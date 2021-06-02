@@ -16,4 +16,4 @@ jobs:
     - name: Show running containers
       run: docker ps
     - name: Tests
-      run: docker-compose run web py.test
+      run: docker-compose exec web py.test
