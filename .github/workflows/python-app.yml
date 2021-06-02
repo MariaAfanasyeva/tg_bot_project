@@ -20,4 +20,4 @@ jobs:
     - name: Tests
       env:
         COMPOSE_INTERACTIVE_NO_CLI: 1
-      run: docker-compose exec -T web py.test -v
+      run: docker-compose exec web py.test -v
