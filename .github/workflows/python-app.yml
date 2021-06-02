@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the stack
-      run: docker-compose up -d
+      run: docker-compose -f "docker-compose.yml" up -d --build
     - name: Show running containers
       run: docker ps
     - name: Tests
