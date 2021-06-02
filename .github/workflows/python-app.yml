@@ -12,8 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the stack
+      env:
+        COMPOSE_INTERACTIVE_NO_CLI: 1
       run: docker-compose -f "docker-compose.yml" up -d --build
     - name: Show running containers
       run: docker ps
     - name: Tests
+      env:
+        COMPOSE_INTERACTIVE_NO_CLI: 1
       run: docker-compose exec -T web py.test -v
