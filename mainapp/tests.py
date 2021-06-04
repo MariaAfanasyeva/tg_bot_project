@@ -267,6 +267,23 @@ class TestCommentsEndpoints(APITestCase):
         self.credentials = {"username": self.username, "password": self.password}
         self.jwt_url = "http://127.0.0.1:8000/api/token/"
 
+    def test_get_one_comment(self):
+        comment = baker.make(Comment)
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+
+        expected_data = {
+            "content": comment.content,
+            "author": None,
+            "creation_date": current_date,
+            "id": comment.id,
+            "to_bot": comment.to_bot.name,
+        }
+
+        endpoint = reverse("comment_detail", kwargs={"pk": comment.id})
+        response = self.client.get(endpoint)
+
+        assert response.data == expected_data
+
     def test_get_list_to_bot(self):
         bot = baker.make(Bot)
         endpoint = reverse("comments_to_bot", kwargs={"pk": bot.id})
