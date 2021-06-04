@@ -120,3 +120,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsCommentAuthor]
+
+
+class CommentDetail(generics.RetrieveAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
