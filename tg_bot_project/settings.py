@@ -165,7 +165,7 @@ if os.environ.get("GITHUB_WORKFLOW"):
             "NAME": os.environ.get("SQL_DATABASE"),
             "USER": os.environ.get("SQL_USER"),
             "PASSWORD": os.environ.get("SQL_PASSWORD"),
-            "HOST": os.environ.get("SQL_HOST"),
+            "HOST": "db",
             "PORT": os.environ.get("SQL_PORT"),
         }
     }
