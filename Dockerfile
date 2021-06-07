@@ -2,19 +2,11 @@
 FROM python:3.8.3-alpine
 
 # set work directory
-WORKDIR /usr/src/app
-
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
+FROM python:latest
 ENV PYTHONUNBUFFERED 1
-
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev
-
-# install dependencies
-RUN pip install --upgrade pip
-COPY requirements.txt requirements.txt
+RUN mkdir /code/
+WORKDIR /code/
+ADD requirements.txt /code/
+COPY . /code/
 RUN pip install -r requirements.txt
-
-# copy project
-COPY . .
+ADD . /code/

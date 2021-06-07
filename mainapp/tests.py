@@ -267,6 +267,23 @@ class TestCommentsEndpoints(APITestCase):
         self.credentials = {"username": self.username, "password": self.password}
         self.jwt_url = "http://127.0.0.1:8000/api/token/"
 
+    def test_get_one_comment(self):
+        comment = baker.make(Comment)
+        current_date = datetime.date.today().strftime("%Y-%m-%d")
+
+        expected_data = {
+            "content": comment.content,
+            "author": None,
+            "creation_date": current_date,
+            "id": comment.id,
+            "to_bot": comment.to_bot.name,
+        }
+
+        endpoint = reverse("comment_update_delete_retrieve", kwargs={"pk": comment.id})
+        response = self.client.get(endpoint)
+
+        assert response.data == expected_data
+
     def test_get_list_to_bot(self):
         bot = baker.make(Bot)
         endpoint = reverse("comments_to_bot", kwargs={"pk": bot.id})
@@ -340,7 +357,7 @@ class TestCommentsEndpoints(APITestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
 
-        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+        url = reverse("comment_update_delete_retrieve", kwargs={"pk": comment.pk})
 
         response = client.delete(url)
 
@@ -366,7 +383,7 @@ class TestCommentsEndpoints(APITestCase):
         access_key = response.data["access"]
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
-        url = reverse("comment_update_delete", kwargs={"pk": comment.pk})
+        url = reverse("comment_update_delete_retrieve", kwargs={"pk": comment.pk})
 
         response = client.delete(url)
 
@@ -400,7 +417,7 @@ class TestCommentsEndpoints(APITestCase):
             "id": old_comment.id,
         }
 
-        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
+        url = reverse("comment_update_delete_retrieve", kwargs={"pk": old_comment.id})
 
         response = client.put(url, comment_dict, format="json")
 
@@ -434,7 +451,7 @@ class TestCommentsEndpoints(APITestCase):
             "to_bot": bot.name,
         }
 
-        url = reverse("comment_update_delete", kwargs={"pk": old_comment.id})
+        url = reverse("comment_update_delete_retrieve", kwargs={"pk": old_comment.id})
 
         response = client.put(url, comment_dict, format="json")
 
