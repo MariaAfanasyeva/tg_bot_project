@@ -32,8 +32,10 @@ urlpatterns = [
     ),
     path(
         "comment/<int:pk>",
-        views.CommentViewSet.as_view({"put": "update", "delete": "destroy"}),
-        name="comment_update_delete",
+        views.CommentViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+        name="comment_update_delete_retrieve",
     ),
     path("user/<int:id>/bots", views.GetBotsFromUser.as_view(), name="user_bots"),
     path("user/<int:pk>/info", views.GetUser.as_view(), name="user"),
