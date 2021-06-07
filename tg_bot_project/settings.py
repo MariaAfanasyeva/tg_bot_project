@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -157,6 +157,7 @@ DATABASES = {
         "PORT": os.environ.get("SQL_PORT"),
     }
 }
+
 if os.environ.get("GITHUB_WORKFLOW"):
     DATABASES = {
         "default": {
@@ -164,7 +165,7 @@ if os.environ.get("GITHUB_WORKFLOW"):
             "NAME": os.environ.get("SQL_DATABASE"),
             "USER": os.environ.get("SQL_USER"),
             "PASSWORD": os.environ.get("SQL_PASSWORD"),
-            "HOST": os.environ.get("SQL_HOST"),
+            "HOST": "db",
             "PORT": os.environ.get("SQL_PORT"),
         }
     }
