@@ -30,7 +30,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+    "localhost",
+    "ec2-3-129-90-245.us-east-2.compute.amazonaws.com",
+]
 
 
 # Application definition
@@ -209,7 +214,10 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-CORS_ORIGIN_WHITELIST = ("http://localhost:3000",)
+CORS_ORIGIN_WHITELIST = (
+    "http://localhost:3000",
+    "http://ec2-3-129-90-245.us-east-2.compute.amazonaws.com:3000",
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
