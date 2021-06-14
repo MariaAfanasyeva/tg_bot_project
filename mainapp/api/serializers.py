@@ -33,23 +33,25 @@ class BotSerializer(serializers.ModelSerializer):
         allow_empty=True,
         required=False,
     )
-    ldclient.set_config(Config(os.environ.get("LD_API_KEY")))
 
-    user = {
-        "key": "1111",
-    }
+    def validate_link(
+        self,
+        value,
+    ):
+        ldclient.set_config(Config(os.environ.get("LD_API_KEY")))
 
-    show_feature = ldclient.get().variation("link-validation", user, False)
+        user = {
+            "key": "1111",
+        }
 
-    if show_feature:
-
-        def validate_link(self, value):
+        show_feature = ldclient.get().variation("link-validation", user, False)
+        if show_feature:
             response = requests.get(value)
             if response.status_code != 200:
                 raise serializers.ValidationError("Invalid link")
             return value
-
-    ldclient.get().close()
+        return value
+        ldclient.close()
 
     class Meta:
         model = Bot
