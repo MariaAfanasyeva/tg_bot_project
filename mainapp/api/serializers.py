@@ -1,10 +1,15 @@
+import os
+
 import ldclient
 import requests
 from django.contrib.auth.models import User
+from dotenv import find_dotenv, load_dotenv
 from ldclient.config import Config
 from rest_framework import serializers
 
 from ..models import Bot, Category, Comment
+
+load_dotenv(find_dotenv(".env.dev"))
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,9 +33,8 @@ class BotSerializer(serializers.ModelSerializer):
         allow_empty=True,
         required=False,
     )
-    ldclient.set_config(Config("sdk-c213fb71-0a88-44e3-907d-bb83ed45b8a2"))
+    ldclient.set_config(Config(os.environ.get("LD_API_KEY")))
 
-    ld_client = ldclient.get()
     user = {
         "key": "1111",
     }
