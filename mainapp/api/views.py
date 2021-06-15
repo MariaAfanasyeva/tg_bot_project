@@ -1,9 +1,12 @@
 import logging
+import os
 
+import requests
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
+from dotenv import find_dotenv, load_dotenv
 from rest_framework import filters, generics, viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from ..models import Bot, Category, Comment
 from .paginations import CustomPagination
@@ -12,6 +15,7 @@ from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
                           UserSerializer)
 
 logger = logging.getLogger(__name__)
+load_dotenv(find_dotenv(".env.dev"))
 
 
 class GetAllBotsList(generics.ListAPIView):
@@ -120,3 +124,12 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsCommentAuthor]
+
+
+class ActivateUser(generics.GenericAPIView):
+    def get(self, request, uid, token):
+        print(uid)
+        url = os.environ.get("HOST") + "auth/users/activation/"
+        x = requests.post(url, data={"uid": uid, "token": token})
+        frontend_url = os.environ.get("REACT_HOST") + "login"
+        return redirect(to=frontend_url)
