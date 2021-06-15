@@ -128,8 +128,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class ActivateUser(generics.GenericAPIView):
     def get(self, request, uid, token):
-        print(uid)
         url = os.environ.get("HOST") + "auth/users/activation/"
-        x = requests.post(url, data={"uid": uid, "token": token})
+        requests.post(url, data={"uid": uid, "token": token})
         frontend_url = os.environ.get("REACT_HOST") + "login"
         return redirect(to=frontend_url)
