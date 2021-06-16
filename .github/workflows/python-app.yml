@@ -17,6 +17,8 @@ jobs:
       run: docker-compose -f "docker-compose.yml" up -d --build
     - name: Show running containers
       run: docker ps
+    - name: Migrations
+      run: docker-compose run web python manage.py migrate
     - name: Tests
       env:
         COMPOSE_INTERACTIVE_NO_CLI: 1
