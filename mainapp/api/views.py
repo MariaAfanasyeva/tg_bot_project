@@ -3,13 +3,12 @@ import logging
 from django.contrib.auth.models import User
 from rest_framework import filters, generics, viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
-from ..models import Bot, Category, Comment
+from ..models import Bot, Category, Comment, Like
 from .paginations import CustomPagination
-from .permissions import IsBotAuthor, IsCommentAuthor
+from .permissions import IsBotAuthor, IsCommentLikeAuthor
 from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
-                          UserSerializer)
+                          LikeSerializer, UserSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -119,4 +118,40 @@ class CreateComment(generics.CreateAPIView):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsCommentAuthor]
+    permission_classes = [IsCommentLikeAuthor]
+
+
+# class GetAllLikesToBotList(generics.ListAPIView):
+#     serializer_class = LikeSerializer
+#     pagination_class = CustomPagination
+#
+#     def get_queryset(self):
+#         bot_id = self.kwargs["pk"]
+#         queryset = Comment.objects.filter(to_bot_id=bot_id)
+#         return queryset
+#
+#
+# class GetAllCommentsByUserList(generics.ListAPIView):
+#     serializer_class = CommentSerializer
+#     pagination_class = CustomPagination
+#
+#     def get_queryset(self):
+#         user_id = self.kwargs["pk"]
+#         queryset = Comment.objects.filter(author_id=user_id)
+#         return queryset
+
+
+class AddLike(generics.CreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        current_bot = Bot.objects.get(id=self.kwargs["pk"])
+        serializer.save(author=self.request.user, to_bot=current_bot)
+
+
+class DeleteLike(generics.DestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsCommentLikeAuthor]

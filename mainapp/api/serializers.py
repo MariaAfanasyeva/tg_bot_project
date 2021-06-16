@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from ..models import Bot, Category, Comment
+from ..models import Bot, Category, Comment, Like
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,4 +37,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
+        fields = "__all__"
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    to_bot = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="username", read_only=True)
+
+    class Meta:
+        model = Like
         fields = "__all__"
