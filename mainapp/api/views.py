@@ -121,24 +121,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCommentLikeAuthor]
 
 
-# class GetAllLikesToBotList(generics.ListAPIView):
-#     serializer_class = LikeSerializer
-#     pagination_class = CustomPagination
-#
-#     def get_queryset(self):
-#         bot_id = self.kwargs["pk"]
-#         queryset = Comment.objects.filter(to_bot_id=bot_id)
-#         return queryset
-#
-#
-# class GetAllCommentsByUserList(generics.ListAPIView):
-#     serializer_class = CommentSerializer
-#     pagination_class = CustomPagination
-#
-#     def get_queryset(self):
-#         user_id = self.kwargs["pk"]
-#         queryset = Comment.objects.filter(author_id=user_id)
-#         return queryset
+class GetAllLikes(generics.ListAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class AddLike(generics.CreateAPIView):
