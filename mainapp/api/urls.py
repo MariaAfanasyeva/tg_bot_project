@@ -41,4 +41,5 @@ urlpatterns = [
     path("user/<int:pk>/info", views.GetUser.as_view(), name="user"),
     path("bot/<int:pk>/like", views.AddLike.as_view(), name="add_like"),
     path("like/<int:pk>", views.DeleteLike.as_view(), name="delete_like"),
+    path("likes", views.GetAllLikes.as_view(), name="likes list"),
 ]
