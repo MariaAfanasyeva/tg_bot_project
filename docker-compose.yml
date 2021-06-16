@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  smtp-server:
+    image: mailhog/mailhog
+    expose:
+      - 1025
+      - 8025
+    ports:
+      - '1025:1025'
+      - '8025:8025'
   db:
     image: postgres:12-alpine
     volumes:
@@ -11,6 +19,7 @@ services:
       - POSTGRES_DB=bots
   web:
     build: .
+    image: masha29/web
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code

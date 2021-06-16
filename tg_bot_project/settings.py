@@ -30,7 +30,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+    "localhost",
+    "ec2-3-129-90-245.us-east-2.compute.amazonaws.com",
+]
 
 
 # Application definition
@@ -83,6 +88,7 @@ DJOSER = {
     "PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND": True,
     "PASSWORD_RESET_CONFIRM_URL": "auth/reset/confirm/{uid}/{token}/",
     "TOKEN_MODEL": None,
+    "SEND_ACTIVATION_EMAIL": True,
 }
 
 SIMPLE_JWT = {
@@ -209,7 +215,14 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-CORS_ORIGIN_WHITELIST = ("http://localhost:3000",)
+CORS_ORIGIN_WHITELIST = (
+    "http://localhost:3000",
+    "http://ec2-3-129-90-245.us-east-2.compute.amazonaws.com:3000",
+)
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-server"
+EMAIL_PORT = "1025"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
