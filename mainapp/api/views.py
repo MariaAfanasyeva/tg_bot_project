@@ -124,7 +124,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 class GetAllLikes(generics.ListAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class AddLike(generics.CreateAPIView):
