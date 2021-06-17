@@ -480,7 +480,7 @@ class TestLikesEndpoints(APITestCase):
         endpoint = reverse("add_like", kwargs={"pk": bot.pk})
         expected_json = {
             "to_bot": bot.name,
-            "author": user.id,
+            "author": user.username,
             "id": 1,
         }
 

@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth.models import User
-from rest_framework import filters, generics, viewsets
+from rest_framework import filters, generics, serializers, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category, Comment, Like
@@ -133,7 +133,13 @@ class AddLike(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         current_bot = Bot.objects.get(id=self.kwargs["pk"])
-        serializer.save(author=self.request.user, to_bot=current_bot)
+        likes = Like.objects.filter(
+            author=self.request.user, to_bot=current_bot
+        ).count()
+        if likes == 0:
+            serializer.save(author=self.request.user, to_bot=current_bot)
+        else:
+            raise serializers.ValidationError("You liked this bot")
 
 
 class DeleteLike(generics.DestroyAPIView):
