@@ -1,7 +1,12 @@
 import logging
+import os
 
+import requests
 from django.contrib.auth.models import User
 from rest_framework import filters, generics, serializers, viewsets
+
+from django.shortcuts import redirect
+from dotenv import find_dotenv, load_dotenv
 from rest_framework.permissions import IsAuthenticated
 
 from ..models import Bot, Category, Comment, Like
@@ -11,6 +16,7 @@ from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
                           LikeSerializer, UserSerializer)
 
 logger = logging.getLogger(__name__)
+load_dotenv(find_dotenv(".env.dev"))
 
 
 class GetAllBotsList(generics.ListAPIView):
@@ -146,3 +152,11 @@ class DeleteLike(generics.DestroyAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     permission_classes = [IsCommentLikeAuthor]
+
+
+class ActivateUser(generics.GenericAPIView):
+    def get(self, request, uid, token):
+        url = os.environ.get("HOST") + "auth/users/activation/"
+        requests.post(url, data={"uid": uid, "token": token})
+        frontend_url = os.environ.get("REACT_HOST") + "login"
+        return redirect(to=frontend_url)
