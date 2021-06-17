@@ -3,16 +3,17 @@ import os
 
 import requests
 from django.contrib.auth.models import User
+from rest_framework import filters, generics, serializers, viewsets
+
 from django.shortcuts import redirect
 from dotenv import find_dotenv, load_dotenv
-from rest_framework import filters, generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from ..models import Bot, Category, Comment
+from ..models import Bot, Category, Comment, Like
 from .paginations import CustomPagination
-from .permissions import IsBotAuthor, IsCommentAuthor
+from .permissions import IsBotAuthor, IsCommentLikeAuthor
 from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
-                          UserSerializer)
+                          LikeSerializer, UserSerializer)
 
 logger = logging.getLogger(__name__)
 load_dotenv(find_dotenv(".env.dev"))
@@ -123,7 +124,34 @@ class CreateComment(generics.CreateAPIView):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsCommentAuthor]
+    permission_classes = [IsCommentLikeAuthor]
+
+
+class GetAllLikes(generics.ListAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+
+class AddLike(generics.CreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        current_bot = Bot.objects.get(id=self.kwargs["pk"])
+        likes = Like.objects.filter(
+            author=self.request.user, to_bot=current_bot
+        ).count()
+        if likes == 0:
+            serializer.save(author=self.request.user, to_bot=current_bot)
+        else:
+            raise serializers.ValidationError("You liked this bot")
+
+
+class DeleteLike(generics.DestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsCommentLikeAuthor]
 
 
 class ActivateUser(generics.GenericAPIView):

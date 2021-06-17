@@ -10,7 +10,7 @@ class IsBotAuthor(permissions.BasePermission):
         return obj.add_by_user == request.user
 
 
-class IsCommentAuthor(permissions.BasePermission):
+class IsCommentLikeAuthor(permissions.BasePermission):
     message = "Only the authors can edit and delete comments"
 
     def has_object_permission(self, request, view, obj):

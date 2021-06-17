@@ -16,7 +16,7 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APIClient, APITestCase
 from rest_framework_jwt.settings import api_settings
 
-from .models import Bot, Comment
+from .models import Bot, Comment, Like
 
 pytestmark = pytest.mark.django_db
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -456,3 +456,95 @@ class TestCommentsEndpoints(APITestCase):
         response = client.put(url, comment_dict, format="json")
 
         assert response.status_code == 403
+
+
+class TestLikesEndpoints(APITestCase):
+    def setUp(self) -> None:
+        self.username = "usuario"
+        self.password = "contrasegna"
+        self.credentials = {"username": self.username, "password": self.password}
+        self.jwt_url = "http://127.0.0.1:8000/api/token/"
+
+    def test_create_user_authenticated(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        bot = baker.make(Bot)
+        endpoint = reverse("add_like", kwargs={"pk": bot.pk})
+        expected_json = {
+            "to_bot": bot.name,
+            "author": user.username,
+            "id": 1,
+        }
+
+        response = client.post(endpoint)
+        assert response.status_code == 201
+        assert response.data == expected_json
+
+    def test_create_user_not_authenticated(self):
+        bot = baker.make(Bot)
+        endpoint = reverse("add_like", kwargs={"pk": bot.pk})
+        expected_json = {
+            "detail": ErrorDetail(
+                string="Authentication credentials were not provided.",
+                code="not_authenticated",
+            )
+        }
+
+        response = self.client.post(endpoint)
+        assert response.status_code == 401
+        assert response.data == expected_json
+
+    def test_delete_like_by_owner(self):
+        user = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        bot = baker.make(Bot)
+        like = Like.objects.create(to_bot=bot, author=user)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+
+        url = reverse("delete_like", kwargs={"pk": like.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert Comment.objects.all().count() == 0
+
+    def test_delete_by_other_user(self):
+        user1 = User.objects.create_user(
+            username=self.username,
+            email="usuario@mail.com",
+            password=self.password,
+            id=1,
+        )
+        user2 = User.objects.create_user(
+            username="aaa",
+            email="usuario@mail.com",
+            password="aaa",
+            id=2,
+        )
+        bot = baker.make(Bot)
+        like = Like.objects.create(to_bot=bot, author=user2)
+        response = self.client.post(self.jwt_url, self.credentials, format="json")
+        access_key = response.data["access"]
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + access_key)
+        url = reverse("delete_like", kwargs={"pk": like.pk})
+
+        response = client.delete(url)
+
+        assert response.status_code == 403
+        assert Bot.objects.all().count() == 1
