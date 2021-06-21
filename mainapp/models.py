@@ -93,12 +93,11 @@ class Audit(models.Model):
     )
     old_value = models.TextField(verbose_name="old value", null=True, blank=True)
     new_value = models.TextField(verbose_name="new value", null=True, blank=True)
-    author = models.CharField(
-        max_length=40, verbose_name="author", null=True, blank=True
-    )
+    author_id = models.IntegerField(verbose_name="author", null=True, blank=True)
+    record_id = models.IntegerField(verbose_name="record id", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.author} changed table {self.table_name} at {self.create_time}"
+        return f"Author with id {self.author_id} changed table {self.table_name} at {self.create_time}"
 
 
 @receiver(pre_save, sender=Category)
@@ -115,8 +114,8 @@ def pre_save_signal_handler(sender, instance, **kwargs):
         request = None
         user = None
     model_fields = []
-    for i in instance._meta.fields:
-        model_fields.append(i.name)
+    for field in instance._meta.fields:
+        model_fields.append(field.name)
     new_obj = instance
     model_name = sender.__name__
     if instance.id:
@@ -130,7 +129,8 @@ def pre_save_signal_handler(sender, instance, **kwargs):
                     field_name=field,
                     old_value=old_val,
                     new_value=new_val,
-                    author=user,
+                    author_id=user.id,
+                    record_id=instance.id,
                 )
     else:
         for field in model_fields:
@@ -140,7 +140,8 @@ def pre_save_signal_handler(sender, instance, **kwargs):
                 field_name=field,
                 old_value=None,
                 new_value=new_val,
-                author=user,
+                author_id=user.id,
+                record_id=None,
             )
 
 
@@ -158,9 +159,8 @@ def pre_delete_signal_handler(sender, instance, **kwargs):
         request = None
         user = None
     model_fields = []
-    for i in instance._meta.fields:
-        model_fields.append(i.name)
-        print(i.name)
+    for field in instance._meta.fields:
+        model_fields.append(field.name)
     model_name = sender.__name__
     old_obj = sender.objects.get(id=instance.id)
     for field in model_fields:
@@ -170,5 +170,6 @@ def pre_delete_signal_handler(sender, instance, **kwargs):
             field_name=field,
             old_value=old_val,
             new_value=None,
-            author=user,
+            author_id=user.id,
+            record_id=instance.id,
         )
