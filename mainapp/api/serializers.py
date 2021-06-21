@@ -34,6 +34,16 @@ class BotSerializer(serializers.ModelSerializer):
         required=False,
     )
 
+    @staticmethod
+    def check_link(link):
+        obj_with_link = Bot.objects.filter(link__iexact=link)
+        if obj_with_link:
+            raise serializers.ValidationError(
+                "Bot with the same link is already in database"
+            )
+        else:
+            return link
+
     def validate_link(
         self,
         value,
@@ -50,6 +60,8 @@ class BotSerializer(serializers.ModelSerializer):
             if response.status_code != 200:
                 raise serializers.ValidationError("Invalid link")
             return value
+        value = self.check_link(value)
+        print("hi", self.check_link(value))
         return value
         ldclient.close()
 
