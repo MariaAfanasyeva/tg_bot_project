@@ -59,9 +59,9 @@ class BotSerializer(serializers.ModelSerializer):
             response = requests.get(value)
             if response.status_code != 200:
                 raise serializers.ValidationError("Invalid link")
+            value = self.check_link(value)
             return value
         value = self.check_link(value)
-        print("hi", self.check_link(value))
         return value
         ldclient.close()
 
