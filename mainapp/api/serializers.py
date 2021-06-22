@@ -56,15 +56,12 @@ class BotSerializer(serializers.ModelSerializer):
 
         show_feature = ldclient.get().variation("link-validation", user, False)
         method = self.context["request"].method
+        if method != "PUT":
+            value = self.check_link(value)
         if show_feature:
             response = requests.get(value)
             if response.status_code != 200:
                 raise serializers.ValidationError("Invalid link")
-            if method != "PUT":
-                value = self.check_link(value)
-            return value
-        if method != "PUT":
-            value = self.check_link(value)
         return value
         ldclient.close()
 
