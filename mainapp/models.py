@@ -109,6 +109,7 @@ def pre_save_signal_handler(sender, instance, **kwargs):
         if frame_record[3] == "get_response":
             request = frame_record[0].f_locals["request"]
             user = request.user
+            user = user.id
             break
     else:
         request = None
@@ -129,7 +130,7 @@ def pre_save_signal_handler(sender, instance, **kwargs):
                     field_name=field,
                     old_value=old_val,
                     new_value=new_val,
-                    author_id=user.id,
+                    author_id=user,
                     record_id=instance.id,
                 )
     else:
@@ -140,7 +141,7 @@ def pre_save_signal_handler(sender, instance, **kwargs):
                 field_name=field,
                 old_value=None,
                 new_value=new_val,
-                author_id=user.id,
+                author_id=user,
                 record_id=None,
             )
 
@@ -154,6 +155,7 @@ def pre_delete_signal_handler(sender, instance, **kwargs):
         if frame_record[3] == "get_response":
             request = frame_record[0].f_locals["request"]
             user = request.user
+            user = user.id
             break
     else:
         request = None
@@ -170,6 +172,6 @@ def pre_delete_signal_handler(sender, instance, **kwargs):
             field_name=field,
             old_value=old_val,
             new_value=None,
-            author_id=user.id,
+            author_id=user,
             record_id=instance.id,
         )
