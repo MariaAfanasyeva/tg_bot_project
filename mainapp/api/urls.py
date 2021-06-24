@@ -42,4 +42,21 @@ urlpatterns = [
     path("bot/<int:pk>/like", views.AddLike.as_view(), name="add_like"),
     path("like/<int:pk>", views.DeleteLike.as_view(), name="delete_like"),
     path("likes", views.GetAllLikes.as_view(), name="likes list"),
+    path(
+        "collections",
+        views.CollectionViewSet.as_view({"get": "list", "post": "create"}),
+        name="collections list or create",
+    ),
+    path(
+        "collection/<int:pk>",
+        views.CollectionViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+        name="collection_update_delete_retrieve",
+    ),
+    path(
+        "user/<int:pk>/collections",
+        views.GetAllCollectionsByUserList.as_view(),
+        name="user_collections",
+    ),
 ]

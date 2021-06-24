@@ -3,16 +3,19 @@ import os
 
 import requests
 from django.contrib.auth.models import User
-from rest_framework import filters, generics, serializers, viewsets
-
 from django.shortcuts import redirect
 from dotenv import find_dotenv, load_dotenv
-from rest_framework.permissions import IsAuthenticated
+from requests import Response
+from rest_framework import filters, generics, serializers, viewsets
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 
-from ..models import Bot, Category, Comment, Like
+from ..models import Bot, BotCollection, Category, Comment, Like
 from .paginations import CustomPagination
-from .permissions import IsBotAuthor, IsCommentLikeAuthor
-from .serializers import (BotSerializer, CategorySerializer, CommentSerializer,
+from .permissions import (CollectionPermissions, IsBotAuthor,
+                          IsCommentLikeAuthor)
+from .serializers import (BotSerializer, CategorySerializer,
+                          CollectionSerializer, CommentSerializer,
                           LikeSerializer, UserSerializer)
 
 logger = logging.getLogger(__name__)
@@ -160,3 +163,22 @@ class ActivateUser(generics.GenericAPIView):
         requests.post(url, data={"uid": uid, "token": token})
         frontend_url = os.environ.get("REACT_HOST") + "login"
         return redirect(to=frontend_url)
+
+
+class CollectionViewSet(viewsets.ModelViewSet):
+    queryset = BotCollection.objects.all()
+    serializer_class = CollectionSerializer
+    permission_classes = [CollectionPermissions]
+
+    def perform_create(self, serializer):
+        serializer.save(collection_author=self.request.user)
+
+
+class GetAllCollectionsByUserList(generics.ListAPIView):
+    serializer_class = CollectionSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user_id = self.kwargs["pk"]
+        queryset = BotCollection.objects.filter(collection_author=user_id)
+        return queryset

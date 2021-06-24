@@ -7,7 +7,7 @@ from dotenv import find_dotenv, load_dotenv
 from ldclient.config import Config
 from rest_framework import serializers
 
-from ..models import Bot, Category, Comment, Like
+from ..models import Bot, BotCollection, Category, Comment, Like
 
 load_dotenv(find_dotenv(".env.dev"))
 
@@ -21,6 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
+        fields = "__all__"
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    bot = serializers.PrimaryKeyRelatedField(queryset=Bot.objects.all(), many=True)
+
+    class Meta:
+        model = BotCollection
         fields = "__all__"
 
 

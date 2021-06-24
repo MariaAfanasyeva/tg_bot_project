@@ -40,6 +40,21 @@ class Bot(models.Model):
         return f"{self.name} by {self.author}"
 
 
+class BotCollection(models.Model):
+    collection_author = models.ForeignKey(
+        User,
+        verbose_name="User that created collection",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    bot = models.ManyToManyField(Bot, related_name="collection", blank=True)
+    name = models.CharField(max_length=150, verbose_name="name", null=True)
+
+    def __str__(self):
+        return f"bot collection {self.name} by {self.collection_author}"
+
+
 class Comment(models.Model):
     to_bot = models.ForeignKey(
         Bot, related_name="bot", on_delete=models.CASCADE, verbose_name="comment to bot"
