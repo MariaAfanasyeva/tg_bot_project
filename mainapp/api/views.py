@@ -5,8 +5,10 @@ import requests
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from dotenv import find_dotenv, load_dotenv
+from requests import Response
 from rest_framework import filters, generics, serializers, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 
 from ..models import Bot, BotCollection, Category, Comment, Like
 from .paginations import CustomPagination
@@ -162,16 +164,10 @@ class ActivateUser(generics.GenericAPIView):
         return redirect(to=frontend_url)
 
 
-class GetAllCollections(generics.ListAPIView):
+class CollectionsListCreate(generics.ListCreateAPIView):
     queryset = BotCollection.objects.all()
     serializer_class = CollectionSerializer
-    pagination_class = CustomPagination
-
-
-class CreateCollection(generics.CreateAPIView):
-    queryset = BotCollection.objects.all()
-    serializer_class = CollectionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(collection_author=self.request.user)

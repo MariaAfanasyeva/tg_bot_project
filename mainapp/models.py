@@ -42,7 +42,11 @@ class Bot(models.Model):
 
 class BotCollection(models.Model):
     collection_author = models.ForeignKey(
-        User, verbose_name="User that created collection", on_delete=models.CASCADE
+        User,
+        verbose_name="User that created collection",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     bot = models.ManyToManyField(Bot, related_name="collection", blank=True)
     name = models.CharField(max_length=150, verbose_name="name", null=True)
