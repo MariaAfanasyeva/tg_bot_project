@@ -54,4 +54,9 @@ urlpatterns = [
         ),
         name="collection_update_delete_retrieve",
     ),
+    path(
+        "user/<int:pk>/collections",
+        views.GetAllCollectionsByUserList.as_view(),
+        name="user_collections",
+    ),
 ]

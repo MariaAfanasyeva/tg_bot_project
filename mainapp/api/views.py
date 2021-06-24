@@ -172,3 +172,13 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(collection_author=self.request.user)
+
+
+class GetAllCollectionsByUserList(generics.ListAPIView):
+    serializer_class = CollectionSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user_id = self.kwargs["pk"]
+        queryset = BotCollection.objects.filter(collection_author=user_id)
+        return queryset
