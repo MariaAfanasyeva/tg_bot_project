@@ -19,10 +19,13 @@ class IsCommentLikeAuthor(permissions.BasePermission):
         return obj.author == request.user
 
 
-class IsCollectionAuthor(permissions.BasePermission):
+class CollectionPermissions(permissions.BasePermission):
     message = "Only the authors can edit and delete collections"
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.collection_author == request.user
+        elif request.method == "POST":
+            return request.user.is_authenticated
+        else:
+            return obj.collection_author == request.user

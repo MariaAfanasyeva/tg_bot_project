@@ -44,7 +44,7 @@ urlpatterns = [
     path("likes", views.GetAllLikes.as_view(), name="likes list"),
     path(
         "collections",
-        views.CollectionsListCreate.as_view(),
+        views.CollectionViewSet.as_view({"get": "list", "post": "create"}),
         name="collections list or create",
     ),
     path(

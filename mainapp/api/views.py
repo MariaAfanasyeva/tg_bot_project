@@ -12,7 +12,8 @@ from rest_framework.permissions import (IsAuthenticated,
 
 from ..models import Bot, BotCollection, Category, Comment, Like
 from .paginations import CustomPagination
-from .permissions import IsBotAuthor, IsCollectionAuthor, IsCommentLikeAuthor
+from .permissions import (CollectionPermissions, IsBotAuthor,
+                          IsCommentLikeAuthor)
 from .serializers import (BotSerializer, CategorySerializer,
                           CollectionSerializer, CommentSerializer,
                           LikeSerializer, UserSerializer)
@@ -164,16 +165,10 @@ class ActivateUser(generics.GenericAPIView):
         return redirect(to=frontend_url)
 
 
-class CollectionsListCreate(generics.ListCreateAPIView):
-    queryset = BotCollection.objects.all()
-    serializer_class = CollectionSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(collection_author=self.request.user)
-
-
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = BotCollection.objects.all()
     serializer_class = CollectionSerializer
-    permission_classes = [IsCollectionAuthor]
+    permission_classes = [CollectionPermissions]
+
+    def perform_create(self, serializer):
+        serializer.save(collection_author=self.request.user)
